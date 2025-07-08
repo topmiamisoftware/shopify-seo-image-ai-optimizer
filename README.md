@@ -1,16 +1,27 @@
-<h1>Shopify Technical SEO AI Image Optimizer (Compressor, Resizer, AI Renamer, and AI Alt Text)</h1>
+<h1>Shopify Technical SEO AI Image Optimizer (Compressor, Resizer, AI Renamer, and Alt Text Generator)</h1>
 
 <p>
-    Welcome to this <b>basic</b> Shopify Image Technical SEO AI Image Optimizer tool.
-    Notice that I've written <b>basic</b> in bold and this is because the optimizer is still quite rudementary. For example,
-    you will notice some manual steps such as downloading the CSV file from your Shopify store. This is because I haven't found the time to work on that yet.
+    Welcome to Shopify Image Technical SEO AI Image Optimizer tool.
 </p>
+
+<p>
+    This Optimizer will:
+</p>
+<ul>
+    <li>Walk you through exporting your Shopify product lists.</li>
+    <li>Extract your product images and image placements from the shopify product list.</li>
+    <li>Download all your images from said URLs and shard them using the unique product handles that your shopify store uses for your images.</li>
+    <li>Resize and compress said images to webp format.</li>
+    <li>Make calls to Google Gemini to figure out what's in each image, with a custom prompt, and rename your image.</li>
+    <li>Re-upload the images by replacing the previous ones with the correct product image placement from Shopify. While uploading, it will also use the file name to generate the Alt Text for the product image.</li>
+</ul>
 
 <p>
     DISCLAIMER: This source code is to be used AS IS. While I have personally ran this in 2 different production Shopify Stores and replaced over 500 images, I'm still not sure what could go wrong while running the image replacement script.
 </p>
+
 <p>
-    My suggestion is to first run the image replacement script for 10 prodcuts at the time, checking if anything has gone wrong with your products, and then letting it run for a greater amount of products at the time. For example, I did batches of 20 at first, and once I saw it was replacing images correctly, I let it run until it finished all the 500+ images. I used it on these two websites: <a href="https://jeansmellgood.com" target="_blank">jeansmellgood.com</a> & <a href="https://bwmcosmetics.com" target="_blank">bwmcosmetics.com</a>
+    My suggestion is to first run the image replacement script for 10 prodcuts at the time, checking if anything has gone wrong with your products, and then letting it run for a greater amount of products at the time. For example, I did batches of 20 at first, and once I saw it was replacing images correctly, I let it run until it finished all the 500+ images.
 </p>
 
 <h2>
