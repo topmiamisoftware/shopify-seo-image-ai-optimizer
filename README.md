@@ -53,7 +53,7 @@
         <li>To achieve this, we'll use the <b>download_product_images.sh</b> shell script.</li>
         <li>It will create the downloaded_images folder, and download the images from the Shopify CDN using the wget tool.</li>
         <li>Once downloaded, it will store each image in its respective folder declared by ${ProductHandle}/${ImagePlacement}/${FileName}</li>
-        <li>Note that Product Handles cannot be duplicated. Therefore, we just use the Product Handles to shard the downloaded folders for the images locally.</li>
+        <li>Note that Product Handles cannot be duplicated. Therefore, we just use the Product Handles to shard the downloaded_images folders appropiately.</li>
         <ol>
             <li>
                 To download the images, run the `./download_product_images.sh` command from your CLI and you will see the "Download complete! Images are saved in downloaded_images" if the images are downloaded correctly.

@@ -1,8 +1,9 @@
 #!/bin/bash
 IMAGE_DIR='downloaded_images';
-MAX_WIDTH=1920;
-MAX_HEIGHT=1920;
-MAX_SIZE=300000;
+MAX_WIDTH=820;
+MAX_HEIGHT=820;
+# 50 KB
+MAX_SIZE=50000; 
 LOG="logs/image_resize.log"
 
 # Let's Log the total size of all the images if the IMAGE_DIR
@@ -24,63 +25,51 @@ for productHandle in ./*; do
     for file in *; do
       # Check if it's an image (including webp)
       if [[ "$file" =~ \.(jpg|jpeg|png|gif|bmp|tiff|webp)$ ]]; then
+
+        # Get the dimensions of the image (width and height)
+        dimensions=$(identify -format "%w %h" "$file" 2>/dev/null)
+        file_name="${file%.*}"
+
+        # Check if dimensions are retrieved successfully
+        if [[ -n "$dimensions" ]]; then
+          width=$(echo $dimensions | cut -d' ' -f1)
+          height=$(echo $dimensions | cut -d' ' -f2)
+
+          # Check if the image dimensions are smaller than max_width || max_height in either width or height
+          if [ "$width" -gt $MAX_WIDTH ] || [ "$height" -gt $MAX_HEIGHT ]; then
+            # Resize the image to 50% of its original size using magick
+            echo "Resizing $file..."
+
+            magick "$file" -resize 50% "$file"
+
+            echo "$file was resized and compressed successfully."
+
+          else
+            echo "$file is not resized because its dimensions are below ${MAX_WIDTH}w X ${MAX_HEIGHT}h"
+          fi
+        else
+          echo "Error: Could not retrieve dimensions for $file. Skipping..."
+        fi
+
         # Get the size of the image in bytes
         file_size=$(stat -f %z "$file")
 
-        # Only proceed if the file is over 500 KB
-        if [ "$file_size" -gt $MAX_SIZE ]; then
-          # Get the dimensions of the image (width and height)
-          dimensions=$(identify -format "%w %h" "$file" 2>/dev/null)
+        # Only proceed if the file is over MAX_SIZE or if the image isn't already a webp.
+        if [ "$file_size" -gt $MAX_SIZE ] || [[ "$file" =~ \.(jpg|jpeg|png|gif|bmp|tiff)$ ]]; then
 
-          # Check if dimensions are retrieved successfully
-          if [[ -n "$dimensions" ]]; then
-            width=$(echo $dimensions | cut -d' ' -f1)
-            height=$(echo $dimensions | cut -d' ' -f2)
-            
-            echo "Image width: ${width}"
-            echo "Image height: ${height}"
+          # compress the image
+          magick "${file}" -quality 90 -define webp:lossless=false "${file_name}.webp"
 
-            # Check if the image dimensions are smaller than 1920px in either width or height
-            if [ "$width" -gt $MAX_WIDTH ] || [ "$height" -gt $MAX_HEIGHT ]; then
-              # Resize the image to 50% of its original size using magick
-              echo "Resizing $file..."
-              # TODO: Find a better way to resize the images so that their dimensions remain the highest possible without
-              # going over 1920 pixels
-              magick "$file" -resize 50% "$file"
-
-              # I got this from https://www.smashingmagazine.com/2015/06/efficient-image-resizing-with-imagemagick/
-              # I removed the thumbnail option since we already used magick to resize the image.
-              mogrify -path "${file}" \
-                      -filter Triangle \
-                      -define filter:support=2 \
-                      -unsharp 0.25x0.25+8+0.065 \
-                      -dither None \
-                      -posterize 136 \
-                      -quality 82 \
-                      -define jpeg:fancy-upsampling=off \
-                      -define png:compression-filter=5 \
-                      -define png:compression-level=9 \
-                      -define png:compression-strategy=1 \
-                      -define png:exclude-chunk=all \
-                      -interlace none \
-                      -colorspace sRGB
-
-              echo "$file was resized and compressed successfully.";
-
-            else
-              echo "$file is not resized because its dimensions are above 1920px."
-            fi
-          else
-            echo "Error: Could not retrieve dimensions for $file. Skipping..."
-          fi
+          #let's trash the original image
+          rm -rf "$file"
         else
-          echo "$file is smaller than 500 KB and will not be resized."
+          echo "$file is smaller than ${MAX_SIZE}KB and will not be resized."
         fi
       else
         echo "$file is not an image file."
       fi
     done
-
+  
     # CD back into the project-handle
     cd ..
   done
