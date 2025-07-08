@@ -57,8 +57,7 @@ for productHandle in ./*; do
         # Only proceed if the file is over MAX_SIZE or if the image isn't already a webp.
         if [ "$file_size" -gt $MAX_SIZE ] || [[ "$file" =~ \.(jpg|jpeg|png|gif|bmp|tiff)$ ]]; then
 
-          # I got this from https://www.smashingmagazine.com/2015/06/efficient-image-resizing-with-imagemagick/
-          # I removed the thumbnail option since we already used magick to resize the image.
+          # compress the image
           magick "${file}" -quality 90 -define webp:lossless=false "${file_name}.webp"
 
           #let's trash the original image
