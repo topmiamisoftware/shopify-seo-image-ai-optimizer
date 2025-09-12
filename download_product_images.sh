@@ -26,39 +26,40 @@ done < "../$URL_FILE"
 # then loop through the image URLs and save them into our array
 counter=0
 for i in "${!imageSrcArray[@]}"; do
-    
+
     declare -a lineArray;
 
     # Increment the counter
     ((counter++))
 
-    if ((counter == 1)); then
-      continue;
-    fi
-
     # Let's split the array and save it to a local array
     IFS=',' read -ra lineArray <<< "${imageSrcArray[i]}"
 
+    productHandle="${lineArray[1]}"
+    productImageURL="${lineArray[2]}"
+    productImagePlacement="${lineArray[3]}"
+
     # We might get one of these products that just have no images, so let's skip over them.
-    if [[ -z "${lineArray[1]}" ]]; then
+    # I'm not sure if this is still true after switching to the GraphQL API
+    if [[ -z "${productImageURL}" ]]; then
         continue;
     fi
 
     # First we create a folder for the handle
-    if [ ! -d "$lineArray[0]" ]; then
-        mkdir -p "${lineArray[0]}";
+    if [ ! -d "$productHandle" ]; then
+        mkdir -p "${productHandle}";
     fi
     
     # CD into the product handle folder where we will create the image order directories.
-    cd "${lineArray[0]}";
+    cd "${productHandle}";
 
     # then, we'll create a folder for the image order inside that product handle
-    if [ ! -d "$lineArray[2]" ]; then
-        mkdir -p "${lineArray[2]}";
+    if [ ! -d "$productImagePlacement" ]; then
+        mkdir -p "${productImagePlacement}";
     fi
 
     # cd into the folder where we will save the image (sharded by product image order)
-    cd "${lineArray[2]}";
+    cd "${productImagePlacement}";
 
     # If the file already exists, let's skip the download
     if [ $(ls -1 | wc -l) -gt 0 ]; then
@@ -70,8 +71,8 @@ for i in "${!imageSrcArray[@]}"; do
 
     # finally, we'll save the image in that product-handle/order folder.
     # Download the image using wget
-    echo "${counter} - Starting download for: - ${lineArray[1]} to save @ ${OUTPUT_DIR}/${lineArray[0]}/${lineArray[2]}";
-    wget "${lineArray[1]}";
+    echo "${counter} - Starting download for: - ${productHandle} to save @ ${OUTPUT_DIR}/${productHandle}/${productImagePlacement}";
+    wget "${productImageURL}";
 
     # Remove the Cache Version for the file name.
     for file in ./*; do
