@@ -52,8 +52,6 @@
     <li>
         Before we upload the images through the Gemini API to get the file names, let's compress them and resize them. This will not only optimize the images for the best web performance, it will also reduce the payload on the Gemini API calls.<br/>
         <b>!!!WARNING!!!:</b> You should manually backup the `downloaded_images` folder at this point to create a backup of your Shopify Store Images.
-        <b>!!!WARNING!!!:</b> You should manually backup the `downloaded_images` folder at this point to create a backup of your Shopify Store Images.
-        <b>!!!WARNING!!!:</b> You should manually backup the `downloaded_images` folder at this point to create a backup of your Shopify Store Images.
     </li>
         <ul>
             Once you created your backup from the downloaded_images folder, you can take a look at the current hard-coded settings for image resizing and compression. Opening the <b>image_resize.sh</b> script will allow you to customize the MAX_WIDTH, MAX_HEIGHT, and MAX_SIZE variable thresholds.
@@ -117,9 +115,6 @@
         Finally... it's time to upload the images to the store and delete the current ones. I've added a backup method to the script which clones the current images in the downloaded_images to a backup folder. You should have manually backed this folder up before resizing or renaming any images.
     </li>
     <li>!!!WARNING!!!: If you haven't done so, make a backup of you downloaded_images folder at this point. If you need to re-downloaded all the original images again, then do so with the `download_product_images.sh` script. This next step is hihgly destructive and can have consequences on your Shopify Store.</li>
-    <li>!!!WARNING!!!: If you haven't done so, make a backup of you downloaded_images folder at this point. If you need to re-downloaded all the original images again, then do so with the `download_product_images.sh` script. This next step is hihgly destructive and can have consequences on your Shopify Store.</li>
-    <li>!!!WARNING!!!: If you haven't done so, make a backup of you downloaded_images folder at this point. If you need to re-downloaded all the original images again, then do so with the `download_product_images.sh` script. This next step is hihgly destructive and can have consequences on your Shopify Store.</li>
-    <li>HIGHLY ADVISED: You can set the stop point for the script earlier so that you can check that your images are being uploaded correctly</li>
     <ul>
         <li>
             You will have update your correct API tokens from Shopify.
