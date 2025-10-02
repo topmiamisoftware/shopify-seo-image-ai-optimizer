@@ -24,7 +24,7 @@ fi
 
 # Declare from which product ID you want to start. Products with IDs greater than the FROM_ID
 # are the only ones which will be processed.
-FROM_ID=10096501555384
+FROM_ID=0
 
 #Let's get the total products
 echo "Total Products Request..." >> "$COMPLETION_LOG_FILE"
