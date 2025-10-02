@@ -70,6 +70,7 @@ next_product_list() {
 writeProductToCsv() {
     product=$(echo "$1")
     outputFile=$(echo "$2")
+    logFile=$(echo "$3")
 
     product_id=$(_jq $product '.id');
     product_handle=$(_jq $product '.handle')
@@ -77,11 +78,13 @@ writeProductToCsv() {
     online_store_url=$(_jq $product '.onlineStoreUrl')
     product_media_list=$(_jq $product '.media.edges[]')
 
-    #  User for image placement.
+    # Use for image placement.
     order=0
     for product_image in $(echo "$product_media_list" | jq -r '.node.image.url'); do
         line="$product_id,$product_handle,$product_image,$order"
         printf "$line \n" >> $outputFile;
         let order++
     done   
+
+     printf "Total Images for product ${order} \n" >> $logFile;
 }
