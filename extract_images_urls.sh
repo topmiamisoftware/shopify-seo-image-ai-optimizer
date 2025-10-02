@@ -24,7 +24,7 @@ fi
 
 # Declare from which product ID you want to start. Products with IDs greater than the FROM_ID
 # are the only ones which will be processed.
-FROM_ID=10039381622968
+FROM_ID=10096501555384
 
 #Let's get the total products
 echo "Total Products Request..." >> "$COMPLETION_LOG_FILE"
@@ -66,6 +66,15 @@ echo "-------------------------------" >> "$COMPLETION_LOG_FILE"
 CURRENT_BATCH_PRODUCT=1
 CURRENT_PRODUCT=1
 
+# How many products are we fetching per batch? Beware Shopify limits this to 250 per GraphQL query for non-bulk queries.
+PRODUCTS_PER_BATCH=250
+
+# If the TOTAL_PRODUCTS is less than the PRODUCTS_PER_BATCH then set the Products Per Batch to equal
+# the total products. This will allow for the batch to finalize since there are 
+if [[ $TOTAL_PRODUCTS -lt $PRODUCTS_PER_BATCH ]]; then
+    let PRODUCTS_PER_BATCH=$TOTAL_PRODUCTS
+fi
+
 # The first product we'll need to retrieve manually to get a product cursor to start from.
 FIRST_PRODUCT=$(echo $firstProductQueryResponse | jq -r '.data.products.nodes[0] | @base64');
 
@@ -76,15 +85,11 @@ echo "--------------------------------" >> "$COMPLETION_LOG_FILE"
 echo "-- Writing Product Image Data --" >> "$COMPLETION_LOG_FILE"
 echo "--------------------------------" >> "$COMPLETION_LOG_FILE"
 
-echo "Writing data for batch product $CURRENT_BATCH_PRODUCT / $PRODUCTS_PER_BATCH - Total Products: $CURRENT_PRODUCT / $TOTAL_PRODUCTS" >> "$COMPLETION_LOG_FILE";
+echo "Writing data for first product - Total Products: $CURRENT_PRODUCT / $TOTAL_PRODUCTS" >> "$COMPLETION_LOG_FILE";
 
 $(writeProductToCsv $FIRST_PRODUCT $OUTPUT_FILE $COMPLETION_LOG_FILE);
 
 let CURRENT_PRODUCT++
-let CURRENT_BATCH_PRODUCT++
-
-# How many products are we fetching per batch? Beware Shopify limits this to 250 per GraphQL query for non-bulk queries.
-PRODUCTS_PER_BATCH=250
 
 # Now let's generate a list of products for the first 250 products. We will user the last cursor so we know where to start from.
 productResponse=$(echo $(next_product_list "${LAST_CURSOR}" $PRODUCTS_PER_BATCH));
@@ -92,12 +97,6 @@ productResponse=$(echo $(next_product_list "${LAST_CURSOR}" $PRODUCTS_PER_BATCH)
 # Let's save the products and last cursor
 PRODUCT_LIST=$(echo $productResponse | jq -r '.productList')
 LAST_CURSOR=$(echo $productResponse | jq -r '.lastCursor')
-
-# If the TOTAL_PRODUCTS is less than the PRODUCTS_PER_BATCH then set the Products Per Batch to equal
-# the total products. This will allow for the batch to finalize since there are 
-if [[ $TOTAL_PRODUCTS -lt $PRODUCTS_PER_BATCH ]]; then
-    let PRODUCTS_PER_BATCH=$TOTAL_PRODUCTS
-fi
 
 # Order in which columnss will be written to the CSV (product ID, Handle, Image Src, Image Position)
 startBatch() {
@@ -119,6 +118,7 @@ startBatch() {
 
             # Let's start the loop again to get the next product list
             let CURRENT_BATCH_PRODUCT=1
+            let CURRENT_PRODUCT++
             
             echo "Batch Completed...."  >> "$COMPLETION_LOG_FILE";
             echo "-------------------------------" >> "$COMPLETION_LOG_FILE";
@@ -135,6 +135,8 @@ startBatch() {
             $(startBatch "${productList}")
             echo "-------------------------------" >> "$COMPLETION_LOG_FILE";
             echo "-------------------------------" >> "$COMPLETION_LOG_FILE";
+
+            break;
         fi
 
         let CURRENT_PRODUCT++
@@ -143,6 +145,9 @@ startBatch() {
     done
 }
 
+echo "-------------------------------" >> "$COMPLETION_LOG_FILE";
+echo "------- Starting Batches ------" >> "$COMPLETION_LOG_FILE";
+echo "-------------------------------" >> "$COMPLETION_LOG_FILE";
 $(startBatch "${PRODUCT_LIST}")
 echo "-------------------------------" >> "$COMPLETION_LOG_FILE";
 echo "-------------------------------" >> "$COMPLETION_LOG_FILE";
