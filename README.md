@@ -8,7 +8,7 @@
     This Optimizer will:
 </p>
 <ul>
-    <li>Query products from your Shopify URL saving the IDS, handles, image URLs (for the product, not its variants), and placement of the image.</li>
+    <li>Query products from your Shopify Store saving the IDS, handles, image URLs (for the product, not its variants), and placement of the image. Save into a CSV.</li>
     <li>Download all your images from said URLs and shard them using the unique product handles that your shopify store uses.</li>
     <li>Resize, compress, and save said images to webp format.</li>
     <li>Make calls to Google Gemini to figure out what's in each image, with a custom prompt, and rename your image according to what's in them, adhering to technical SEO strandards.</li>
@@ -35,6 +35,15 @@
         <li>Now you can run `extract_images_urls.sh` script.</li>
         <li>This will download all the required product information into a CSV file named 'image_urls.txt'.</li>
     </ol>
+    <p>
+        <strong>NOTE</strong>: If you want to optimize products starting from a specific product ID instead of all of your products, then simply change the
+        FROM_ID variable to the product ID you want to start from. This will download products starting FROM that ID to the latest one you created. Currently, the script does not handle dates, instead it uses IDs to specify which products will get processed. In other words, updated products will not get processed if their
+        ID is less than the specified FROM_ID.
+    </p>
+    <p>
+        You can watch this VIDEO if you're wondering how to change the FROM_ID and how the product image saving process works overall: 
+    </p>
+    <iframe width="560" height="315" src="https://www.youtube.com/embed/YZ9oVx2GzwU?si=pfFuINE4AE_u7QCo" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
     <li>
         Now we can download the Images from the <b>image_urls.txt</b> file into a local folder from the Shopify CDN.
     </li>
