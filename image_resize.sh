@@ -56,6 +56,10 @@ for productHandle in ./*; do
               magick "$file" -resize x"${MAX_HEIGHT}" "$file"
             fi;
 
+            if [ "$width" -eq "$height" ]; then
+              magick "$file" -resize "${MAX_WIDTH}"x"${MAX_HEIGHT}" "$file"
+            fi;
+
             echo "$file was resized and compressed successfully."
 
           else
