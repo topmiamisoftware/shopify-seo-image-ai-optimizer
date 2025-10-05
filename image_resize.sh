@@ -1,10 +1,18 @@
 #!/bin/bash
 IMAGE_DIR='downloaded_images';
+
+# You can set what the largest WIDTH or HEIGHT should be set at
+# an image that is 1200x900 will get resized to 820x
 MAX_WIDTH=820;
 MAX_HEIGHT=820;
+
 # 50 KB
 MAX_SIZE=50000; 
 LOG="logs/image_resize.log"
+
+# WEBP Quality parameter allows you to set your image's quality when converting to WEBP.
+# I reccomend 70 so that your images are not terribly pixelated with 820px being the largest dimension for your image.
+WEBP_QUALITY=70
 
 # Let's Log the total size of all the images if the IMAGE_DIR
 totalDirectorySize="$(du -sh $IMAGE_DIR)"
@@ -40,7 +48,17 @@ for productHandle in ./*; do
             # Resize the image to 50% of its original size using magick
             echo "Resizing $file..."
 
-            magick "$file" -resize 50% "$file"
+            if [ "$width" -gt "$height" ]; then
+              magick "$file" -resize "${MAX_WIDTH}"x "$file"
+            fi;
+
+            if [ "$height" -gt "$width" ]; then
+              magick "$file" -resize x"${MAX_HEIGHT}" "$file"
+            fi;
+
+            if [ "$width" -eq "$height" ]; then
+              magick "$file" -resize "${MAX_WIDTH}"x"${MAX_HEIGHT}" "$file"
+            fi;
 
             echo "$file was resized and compressed successfully."
 
@@ -58,7 +76,7 @@ for productHandle in ./*; do
         if [ "$file_size" -gt $MAX_SIZE ] || [[ "$file" =~ \.(jpg|jpeg|png|gif|bmp|tiff)$ ]]; then
 
           # compress the image
-          magick "${file}" -quality 90 -define webp:lossless=false "${file_name}.webp"
+          magick "${file}" -quality "${WEBP_QUALITY}" -define webp:lossless=false "${file_name}.webp"
 
           #let's trash the original image
           rm -rf "$file"
