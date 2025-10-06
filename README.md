@@ -82,16 +82,16 @@
         </p>
     </li>
     <li>
-        Once you created your backup from the downloaded_images folder, you can take a look at the current hard-coded settings for image resizing and compression. Opening the <b>image_resize.sh</b> script will allow you to customize the MAX_WIDTH, MAX_HEIGHT, and MAX_SIZE variable thresholds.
+        Once you created your backup from the downloaded_images folder, you can take a look at the current hard-coded settings for image resizing and compression. Opening the <b>image_resize.sh</b> script will allow you to customize the <strong>MAX_WIDTH, MAX_HEIGHT, MAX_SIZE, and WEBP_QUALITY</strong> variable thresholds.
     </li>
     <li>
         Once you are satisfied with the thresholds, run the <b>image_resize.sh</b> script.
     </li>
     <li>
-        This will run the `magick` command on each image and reduce their size if they meet the threshold.
+        This will run the `magick` command on each image and reduce their size if they are above the thresholds (MAX_WIDTH, MAX_HEIGHT, MAX_SIZE), using MAX_WIDTH and MAX_HEIGHT as dimension limits for your images.
     </li>
     <li>
-        It will also run `magick` command on each image to compress and convert the images to webp format.
+        It will also run `magick` command on each image to compress and convert the images to webp format using the WEBP_QUALITY settings.
     </li>
 </ol>
 
