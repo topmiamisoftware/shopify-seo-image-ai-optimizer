@@ -26,7 +26,8 @@
 <h2>
     How to use the Shopify Technical SEO Image Optimizer Tool
 </h2>
-<h3>Download the Product Image Data from Shopify GraphQL</h3>
+
+<h3>1. Download the Product Image Data from Shopify GraphQL</h3>
 <ol>
     <li>The first thing we'll do is <b>download the products in your Shopify Store into a CSV file.</b></li>
     <ol>
@@ -41,7 +42,10 @@
     <p>
         You can watch <a href="https://www.youtube.com/watch?v=YZ9oVx2GzwU" target="_blank">this VIDEO if you're wondering how to change the FROM_ID and how the product image saving process works overall.</a> 
     </p>
-    <h3>Download Product Images from the Shopify CDN</h3>
+</ol>
+
+<h3>2. Download Product Images from the Shopify CDN</h3>
+<ol>
     <li>
         Now we can download the Images from the <b>image_urls.txt</b> file into a local folder from the Shopify CDN.
     </li>
@@ -56,10 +60,13 @@
             </li>
         </ol>
     </ul>
-    <p>
-        You can watch <a href="https://www.youtube.com/watch?v=KASFE9usE4k" target="_blank">this VIDEO if you're wondering how the product image download process works.</a> 
-    </p>
-    <h3>Compress and Resize the Shopify Product Images</h3>
+</ol>
+<p>
+    You can watch <a href="https://www.youtube.com/watch?v=KASFE9usE4k" target="_blank">this VIDEO if you're wondering how the product image download process works.</a> 
+</p>
+
+<h3>3. Compress and Resize the Shopify Product Images</h3>
+<ol>
     <li>
         Before we upload the images through the Gemini API to get the file names, let's compress them and resize them. This will not only optimize the images for the best web performance, it will also reduce the payload on the Gemini API calls.<br/>
         <b>!!!WARNING!!!:</b> You should manually backup the `downloaded_images` folder at this point to create a backup of your Shopify Store Images.
@@ -76,7 +83,10 @@
     <ul>
         It will also run `magick` command on each image to compress and convert the images to webp format.
     </ul>
-    <h3>Replace the Optimized Images</h3>
+</ol>
+
+<h3>4. Replace the Optimized Images</h3>
+<ol>
     <li>
         Now it's time to rename the downloaded images using the `rename_images.sh` script. This will rename your image files so that they're named according to what's in the image itself.
     </li>
@@ -126,7 +136,9 @@
         NOTE: This needs to be updated to use the GraphQL API. You will only be able to run this if you have a valid REST API key from an app which you created before the deprecation of the REST API. I'm working on getting this to use the GraphQL API.
         Finally... it's time to upload the images to the store and delete the current ones. I've added a backup method to the script which clones the current images in the downloaded_images to a backup folder. You should have manually backed this folder up before resizing or renaming any images.
     </li>
-    <li>!!!WARNING!!!: If you haven't done so, make a backup of you downloaded_images folder at this point. If you need to re-downloaded all the original images again, then do so with the `download_product_images.sh` script. This next step is hihgly destructive and can have consequences on your Shopify Store.</li>
+    <li>
+        !!!WARNING!!!: If you haven't done so, make a backup of you downloaded_images folder at this point. If you need to re-downloaded all the original images again, then do so with the `download_product_images.sh` script. This next step is hihgly destructive and can have consequences on your Shopify Store.
+    </li>
     <ul>
         <li>
             You will have update your correct API tokens from Shopify.
@@ -145,8 +157,3 @@
         </li>
     </ul>
 </ol>
-
-<p>
-After all the products are downloaded, we proceed to extract the image URLs from the products CSV file, and then we save those
-into their own CSV file.
-</p>
