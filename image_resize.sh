@@ -2,7 +2,9 @@
 IMAGE_DIR='downloaded_images';
 
 # You can set what the largest WIDTH or HEIGHT should be set at
-# an image that is 1200x900 will get resized to 820x
+# an image that is 1200x900 will get resized to 820x520
+# an image that is 900x1200 will get resized to 520x820
+# an image that is 1200x1200 will get resized to 820x820
 MAX_WIDTH=820;
 MAX_HEIGHT=820;
 
@@ -81,7 +83,7 @@ for productHandle in ./*; do
           #let's trash the original image
           rm -rf "$file"
         else
-          echo "$file is smaller than ${MAX_SIZE}KB and will not be resized."
+          echo "$file is smaller than ${MAX_SIZE} bytes and will not be resized."
         fi
       else
         echo "$file is not an image file."
