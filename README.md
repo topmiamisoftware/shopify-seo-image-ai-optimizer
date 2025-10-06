@@ -26,7 +26,7 @@
 <h2>
     How to use the Shopify Technical SEO Image Optimizer Tool
 </h2>
-
+<h3>Download the Product Image Data from Shopify GraphQL</h3>
 <ol>
     <li>The first thing we'll do is <b>download the products in your Shopify Store into a CSV file.</b></li>
     <ol>
@@ -41,6 +41,7 @@
     <p>
         You can watch <a href="https://www.youtube.com/watch?v=YZ9oVx2GzwU" target="_blank">this VIDEO if you're wondering how to change the FROM_ID and how the product image saving process works overall.</a> 
     </p>
+    <h3>Download Product Images from the Shopify CDN</h3>
     <li>
         Now we can download the Images from the <b>image_urls.txt</b> file into a local folder from the Shopify CDN.
     </li>
@@ -55,22 +56,27 @@
             </li>
         </ol>
     </ul>
+    <p>
+        You can watch <a href="https://www.youtube.com/watch?v=KASFE9usE4k" target="_blank">this VIDEO if you're wondering how the product image download process works.</a> 
+    </p>
+    <h3>Compress and Resize the Shopify Product Images</h3>
     <li>
         Before we upload the images through the Gemini API to get the file names, let's compress them and resize them. This will not only optimize the images for the best web performance, it will also reduce the payload on the Gemini API calls.<br/>
         <b>!!!WARNING!!!:</b> You should manually backup the `downloaded_images` folder at this point to create a backup of your Shopify Store Images.
     </li>
-        <ul>
-            Once you created your backup from the downloaded_images folder, you can take a look at the current hard-coded settings for image resizing and compression. Opening the <b>image_resize.sh</b> script will allow you to customize the MAX_WIDTH, MAX_HEIGHT, and MAX_SIZE variable thresholds.
-        </ul>
-        <ul>
-            Once you are satisfied with the thresholds, run the <b>image_resize.sh</b> script.
-        </ul>
-        <ul>
-            This will run the `magick` command on each image and reduce their size if they meet the threshold.
-        </ul>
-        <ul>
-            It will also run `magick` command on each image to compress and convert the images to webp format.
-        </ul>
+    <ul>
+        Once you created your backup from the downloaded_images folder, you can take a look at the current hard-coded settings for image resizing and compression. Opening the <b>image_resize.sh</b> script will allow you to customize the MAX_WIDTH, MAX_HEIGHT, and MAX_SIZE variable thresholds.
+    </ul>
+    <ul>
+        Once you are satisfied with the thresholds, run the <b>image_resize.sh</b> script.
+    </ul>
+    <ul>
+        This will run the `magick` command on each image and reduce their size if they meet the threshold.
+    </ul>
+    <ul>
+        It will also run `magick` command on each image to compress and convert the images to webp format.
+    </ul>
+    <h3>Replace the Optimized Images</h3>
     <li>
         Now it's time to rename the downloaded images using the `rename_images.sh` script. This will rename your image files so that they're named according to what's in the image itself.
     </li>
