@@ -57,11 +57,13 @@
             <li>It will create the downloaded_images folder, and download the images from the Shopify CDN using the wget tool.</li>
             <li>Once downloaded, it will store each image into its respective folder dictated by the ${ProductHandle}/${ImagePlacement}/${FileName} directory scheme.</li>
             <li>Note that Product Handles cannot be duplicated. Therefore, we use Product Handles to shard the downloaded_images folders appropiately. We will also use the product handles when replacing the images.</li>
-            <ol>
-                <li>
-                    To download the images, run the `./download_product_images.sh` command from your CLI and you will see the "Download complete! Images are saved in downloaded_images" if the images are downloaded correctly. This will take a while. You should see output on your console as images are being downloaded.
-                </li>
-            </ol>
+            <p>
+                <ol>
+                    <li>
+                        To download the images, run the `./download_product_images.sh` command from your CLI and you will see the "Download complete! Images are saved in downloaded_images" if the images are downloaded correctly. This will take a while. You should see output on your console as images are being downloaded.
+                    </li>
+                </ol>
+            </p>
         </ul>
     </p>
 </ol>
@@ -72,21 +74,25 @@
 <h3>3. Compress and Resize the Shopify Product Images</h3>
 <ol>
     <li>
-        Before we upload the images through the Gemini API to get the file names, let's compress them and resize them. This will not only optimize the images for the best web performance, it will also reduce the payload on the Gemini API calls.<br/>
-        <b>!!!WARNING!!!:</b> You should manually backup the `downloaded_images` folder at this point to create a backup of your Shopify Store Images.
+        <p>
+            Before we upload the images through the Gemini API to get the file names, let's compress them and resize them. This will not only optimize the images for the best web   performance, it will also reduce the payload on the Gemini API calls.
+        </p>
+        <p>
+            <b>!!!WARNING!!!:</b> You should manually backup the `downloaded_images` folder at this point to create a backup of your Shopify Store Images.
+        </p>
     </li>
-    <ul>
+    <li>
         Once you created your backup from the downloaded_images folder, you can take a look at the current hard-coded settings for image resizing and compression. Opening the <b>image_resize.sh</b> script will allow you to customize the MAX_WIDTH, MAX_HEIGHT, and MAX_SIZE variable thresholds.
-    </ul>
-    <ul>
+    </li>
+    <li>
         Once you are satisfied with the thresholds, run the <b>image_resize.sh</b> script.
-    </ul>
-    <ul>
+    </li>
+    <li>
         This will run the `magick` command on each image and reduce their size if they meet the threshold.
-    </ul>
-    <ul>
+    </li>
+    <li>
         It will also run `magick` command on each image to compress and convert the images to webp format.
-    </ul>
+    </li>
 </ol>
 
 <h3>4. Replace the Optimized Images</h3>
