@@ -1,6 +1,7 @@
 # Shopify API credentials
 SHOPIFY_STORE=""
 ADMIN_API_TOKEN=""
+GEMINI_API_KEY=""
 
 # Product Image Query
 generateQuery() {
