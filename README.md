@@ -30,12 +30,14 @@
 <h3>1. Download the Product Image Data from Shopify GraphQL</h3>
 <ol>
     <li>The first thing we'll do is <b>download the products in your Shopify Store into a CSV file.</b></li>
-    <ol>
-        <li>Grab your shop URL and API Key from your Shopify App.</li>
-        <li>Replace the SHOPIFY_STORE and ADMIN_API_TOKEN values in the `utility.sh` file.</li>
-        <li>Now you can run `extract_images_urls.sh` script.</li>
-        <li>This will download all the required product information into a CSV file named 'image_urls.txt'.</li>
-    </ol>
+    <p>
+        <ol>
+            <li>Grab your shop URL and API Key from your Shopify App.</li>
+            <li>Replace the SHOPIFY_STORE and ADMIN_API_TOKEN values in the `utility.sh` file.</li>
+            <li>Now you can run `extract_images_urls.sh` script.</li>
+            <li>This will download all the required product information into a CSV file named 'image_urls.txt'.</li>
+        </ol>
+    </p>
     <p>
         <strong>NOTE</strong>: If you want to optimize products starting from a specific product ID instead of all of your products, then simply change the FROM_ID variable to the product ID you want to start from. This will download products starting FROM that ID to the latest one you created. Currently, the script does not handle dates, instead it uses IDs to specify which products will get processed. In other words, updated products will not get processed if their ID is less tha the specified FROM_ID.
     </p>
@@ -49,17 +51,19 @@
     <li>
         Now we can download the Images from the <b>image_urls.txt</b> file into a local folder from the Shopify CDN.
     </li>
-    <ul>
-        <li>To achieve this, we'll use the <b>download_product_images.sh</b> shell script.</li>
-        <li>It will create the downloaded_images folder, and download the images from the Shopify CDN using the wget tool.</li>
-        <li>Once downloaded, it will store each image into its respective folder dictated by the ${ProductHandle}/${ImagePlacement}/${FileName} directory scheme.</li>
-        <li>Note that Product Handles cannot be duplicated. Therefore, we use Product Handles to shard the downloaded_images folders appropiately. We will also use the product handles when replacing the images.</li>
-        <ol>
-            <li>
-                To download the images, run the `./download_product_images.sh` command from your CLI and you will see the "Download complete! Images are saved in downloaded_images" if the images are downloaded correctly. This will take a while. You should see output on your console as images are being downloaded.
-            </li>
-        </ol>
-    </ul>
+    <p>
+        <ul>
+            <li>To achieve this, we'll use the <b>download_product_images.sh</b> shell script.</li>
+            <li>It will create the downloaded_images folder, and download the images from the Shopify CDN using the wget tool.</li>
+            <li>Once downloaded, it will store each image into its respective folder dictated by the ${ProductHandle}/${ImagePlacement}/${FileName} directory scheme.</li>
+            <li>Note that Product Handles cannot be duplicated. Therefore, we use Product Handles to shard the downloaded_images folders appropiately. We will also use the product handles when replacing the images.</li>
+            <ol>
+                <li>
+                    To download the images, run the `./download_product_images.sh` command from your CLI and you will see the "Download complete! Images are saved in downloaded_images" if the images are downloaded correctly. This will take a while. You should see output on your console as images are being downloaded.
+                </li>
+            </ol>
+        </ul>
+    </p>
 </ol>
 <p>
     You can watch <a href="https://www.youtube.com/watch?v=KASFE9usE4k" target="_blank">this VIDEO if you're wondering how the product image download process works.</a> 
