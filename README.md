@@ -145,10 +145,10 @@
             </li>
         </ol>
     </ul>
-    <p>
-        You can watch <a href="https://youtu.be/fVOhqPPC-0w" target="_blank">this VIDEO to see how I rename the images using the Gemini 2.5 Flash Lite API.</a> 
-    </p>
 </ol>
+<p>
+    You can watch <a href="https://youtu.be/fVOhqPPC-0w" target="_blank">this VIDEO to see how I rename the images using the Gemini 2.5 Flash Lite API.</a> 
+</p>
 <h3>5. Replace the images in your Shopify Store using the GraphQL API.</h3>
 <ol>
     <li>
