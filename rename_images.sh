@@ -9,9 +9,9 @@ NO_PRODUCT_STRING="NO_PRODUCT_FOUND_IN_IMAGE"
 
 # Variables you will need to adjust for your program to run correctly.
 GEMINI_PROMPT="Analyze the image and tell me the **exact full name of the perfume** in the image. If there is no perfume in the image, respond with '$NO_PRODUCT_STRING'"
-PRODUCT_IMAGE_APPEND="products-online-and-in-miami"
+PRODUCT_IMAGE_APPEND="perfume-fragrance-online-and-in-miami"
 
-API_URL="https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent"
+API_URL="https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent"
 
 # Ensure necessary directories exist
 if [ ! -d "$IMAGE_DIR" ]; then
@@ -109,7 +109,7 @@ for dir in */; do
             ((counter++))
 
             # Throttle every 15 requests (to avoid hitting the rate limit)
-            if ((counter % 10 == 0)); then
+            if ((counter % 15 == 0)); then
               echo "Sleeping for 60 seconds to avoid API rate limit..."
               sleep 60
             fi
@@ -135,7 +135,7 @@ for dir in */; do
         ((counter++))
 
         # Throttle every 15 requests (to avoid hitting the rate limit)
-        if ((counter % 10 == 0)); then
+        if ((counter % 15 == 0)); then
           echo "Sleeping for 60 seconds to avoid API rate limit..."
           sleep 60
         fi
