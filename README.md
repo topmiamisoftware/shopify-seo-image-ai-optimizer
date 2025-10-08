@@ -94,8 +94,11 @@
         It will also run `magick` command on each image to compress and convert the images to webp format using the WEBP_QUALITY settings.
     </li>
 </ol>
+<p>
+    You can watch <a href="https://youtu.be/P80DsZHEu8Y" target="_blank">this VIDEO to see how the images are compressed and resized.</a> 
+</p>
 
-<h3>4. Replace the Optimized Images</h3>
+<h3>4. Rename the Optimized Images using the Gemini API</h3>
 <ol>
     <li>
         Now it's time to rename the downloaded images using the `rename_images.sh` script. This will rename your image files so that they're named according to what's in the image itself.
@@ -142,6 +145,12 @@
             </li>
         </ol>
     </ul>
+    <p>
+        You can watch <a href="https://youtu.be/fVOhqPPC-0w" target="_blank">this VIDEO to see how I rename the images using the Gemini 2.5 Flash Lite API.</a> 
+    </p>
+</ol>
+<h3>5. Replace the images in your Shopify Store using the GraphQL API.</h3>
+<ol>
     <li>
         NOTE: This needs to be updated to use the GraphQL API. You will only be able to run this if you have a valid REST API key from an app which you created before the deprecation of the REST API. I'm working on getting this to use the GraphQL API.
         Finally... it's time to upload the images to the store and delete the current ones. I've added a backup method to the script which clones the current images in the downloaded_images to a backup folder. You should have manually backed this folder up before resizing or renaming any images.
