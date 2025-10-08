@@ -108,13 +108,6 @@
             To do this, we'll use the Gemini API, prompt it to analyze the image and
             rename the file according to the prompt plus some pre-defined text that we'll hardcode in order to match your Shopify's store's targeted SEO keywords.
         </li>
-        <li>
-            If you open the script file, you will notice it doing a couple of things;
-            It will find the "downloaded_images" directory, then it will make CURL requests to the Gemini API with a prompt and the image itself encoded in BASE64.
-        </li>
-        <li>
-            The Gemini API will then reply with a JSON object from which we will want the `candidates[0].content.parts[0].text` portion of.
-        </li>
         <li>What you'll need to make this happen is the following:</li>
         <ol>
             <li>
