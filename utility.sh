@@ -21,8 +21,8 @@ generateQuery() {
                         edges {
                             node {
                                 ... on MediaImage {
+                                    id
                                     image {
-                                        id,
                                         url
                                     }
                                 }
@@ -88,7 +88,7 @@ writeProductToCsv() {
     declare -a product_image_id_list;
     while IFS= read -r line; do
         product_image_id_list+=("$line")
-    done < <(echo "$product_media_list" | jq -r '.node.image.id')
+    done < <(echo "$product_media_list" | jq -r '.node.id')
 
     # Use for image placement.
     order=0
