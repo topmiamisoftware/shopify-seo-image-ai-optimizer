@@ -83,7 +83,7 @@ writeProductToCsv() {
     order=0
     for product_image in $(echo "$product_media_list" | jq -r '.node.image.url'); do
         line="$product_id,$product_handle,$product_image,$order"
-        printf "$line \n" >> $outputFile;
+        printf "$line\n" >> $outputFile;
         let order++
     done   
 
