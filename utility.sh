@@ -83,12 +83,12 @@ writeProductToCsv() {
     declare -a product_image_url_list;
     while IFS= read -r line; do
         product_image_url_list+=("$line")
-    done < <(echo "$product_media_list" | jq -r '.node.image.id')
+    done < <(echo "$product_media_list" | jq -r '.node.image.url')
 
     declare -a product_image_id_list;
     while IFS= read -r line; do
         product_image_id_list+=("$line")
-    done < <(echo "$product_media_list" | jq -r '.node.image.url')
+    done < <(echo "$product_media_list" | jq -r '.node.image.id')
 
     # Use for image placement.
     order=0
