@@ -22,6 +22,7 @@ generateQuery() {
                             node {
                                 ... on MediaImage {
                                     image {
+                                        id,
                                         url
                                     }
                                 }
@@ -79,13 +80,27 @@ writeProductToCsv() {
     online_store_url=$(_jq $product '.onlineStoreUrl')
     product_media_list=$(_jq $product '.media.edges[]')
 
+    declare -a product_image_url_list;
+    while IFS= read -r line; do
+        product_image_url_list+=("$line")
+    done < <(echo "$product_media_list" | jq -r '.node.image.id')
+
+    declare -a product_image_id_list;
+    while IFS= read -r line; do
+        product_image_id_list+=("$line")
+    done < <(echo "$product_media_list" | jq -r '.node.image.url')
+
     # Use for image placement.
     order=0
-    for product_image in $(echo "$product_media_list" | jq -r '.node.image.url'); do
-        line="$product_id,$product_handle,$product_image,$order"
+    for i in "${!product_image_url_list[@]}"; do
+        product_image_url="${product_image_url_list[i]}"
+        product_image_id="${product_image_id_list[i]}"
+
+        line="$product_id,$product_handle,$product_image_url,$product_image_id,$order"
+
         printf "$line\n" >> $outputFile;
         let order++
-    done   
+    done
 
-     printf "Total Images for product ${order} \n" >> $logFile;
+    printf "Total Images for product ${order} \n" >> $logFile;
 }
