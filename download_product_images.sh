@@ -37,7 +37,7 @@ for i in "${!imageSrcArray[@]}"; do
 
     productHandle="${lineArray[1]}"
     productImageURL="${lineArray[2]}"
-    productImagePlacement="${lineArray[3]}"
+    productImagePlacement="${lineArray[4]}"
 
     # We might get one of these products that just have no images, so let's skip over them.
     # I'm not sure if this is still true after switching to the GraphQL API
