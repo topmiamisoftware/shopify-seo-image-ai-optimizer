@@ -8,7 +8,7 @@ LOG_FILE="$LOG_DIR/api_responses.log"
 NO_PRODUCT_STRING="NO_PRODUCT_FOUND_IN_IMAGE"
 
 # Variables you will need to adjust for your program to run correctly.
-GEMINI_PROMPT="Analyze the image and tell me the **exact full name of the perfume** in the image. If there is no perfume in the image, respond with '$NO_PRODUCT_STRING'"
+GEMINI_PROMPT="Analyze the image and tell me the **exact full name of the perfume** in the image. If you cannot find the perfume in the image, respond with '$NO_PRODUCT_STRING'."
 PRODUCT_IMAGE_APPEND="perfume-fragrance-online-and-in-miami"
 
 API_URL="https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent"
@@ -71,7 +71,7 @@ for dir in */; do
                     },
                     {
                       "inlineData": {
-                        "mimeType": "image/jpeg",
+                        "mimeType": "image/webp",
                         "data": "'"$BASE64_IMAGE"'"
                       }
                     }
