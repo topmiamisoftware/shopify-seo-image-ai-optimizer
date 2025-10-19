@@ -12,7 +12,7 @@ generateQuery() {
                 edges {
                     cursor
                 }
-                nodes { 
+                nodes {
                     id 
                     title 
                     handle
@@ -36,6 +36,10 @@ generateQuery() {
     QUERY_DECODED=$(echo $QUERY | base64 -d | tr -d '\n')
 
     echo $QUERY_DECODED;
+}
+
+generateStagedUploadQuery() {
+    echo "mutation stagedUploadsCreate(\$input: [StagedUploadInput!]!) { stagedUploadsCreate(input: \$input) { stagedTargets { url resourceUrl parameters { name value } } userErrors { field message } } }";
 }
 
 _jq() {

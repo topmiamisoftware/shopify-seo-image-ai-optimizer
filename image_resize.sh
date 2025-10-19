@@ -1,20 +1,21 @@
 #!/bin/bash
 IMAGE_DIR='downloaded_images';
 
+LOG="logs/image_resize.log"
+
 # You can set what the largest WIDTH or HEIGHT should be set at
 # an image that is 1200x900 will get resized to 820x520
 # an image that is 900x1200 will get resized to 520x820
 # an image that is 1200x1200 will get resized to 820x820
-MAX_WIDTH=820;
-MAX_HEIGHT=820;
+MAX_WIDTH=900;
+MAX_HEIGHT=900;
 
-# 50 KB
+# 50 KB, Images over 50KB will be resized
 MAX_SIZE=50000; 
-LOG="logs/image_resize.log"
 
 # WEBP Quality parameter allows you to set your image's quality when converting to WEBP.
-# I reccomend 70 so that your images are not terribly pixelated with 820px being the largest dimension for your image.
-WEBP_QUALITY=70
+# I reccomend 75 so that your images are not terribly pixelated with 820px being the largest dimension for your image.
+WEBP_QUALITY=75
 
 # Let's Log the total size of all the images if the IMAGE_DIR
 totalDirectorySize="$(du -sh $IMAGE_DIR)"
@@ -62,7 +63,7 @@ for productHandle in ./*; do
               magick "$file" -resize "${MAX_WIDTH}"x"${MAX_HEIGHT}" "$file"
             fi;
 
-            echo "$file was resized and compressed successfully."
+            echo "$file was resized successfully."
 
           else
             echo "$file is not resized because its dimensions are below ${MAX_WIDTH}w X ${MAX_HEIGHT}h"
@@ -71,19 +72,25 @@ for productHandle in ./*; do
           echo "Error: Could not retrieve dimensions for $file. Skipping..."
         fi
 
-        # Get the size of the image in bytes
-        file_size=$(stat -f %z "$file")
+        # Convert to webp if it isn't already in WEBP format.
+        if ! [[ "$file" =~ \.(webp)$ ]]; then
+          magick "${file}" -quality 100 -define webp:lossless=false "${file_name}.webp"
+        fi
 
-        # Only proceed if the file is over MAX_SIZE or if the image isn't already a webp.
-        if [ "$file_size" -gt $MAX_SIZE ] || [[ "$file" =~ \.(jpg|jpeg|png|gif|bmp|tiff)$ ]]; then
+        webpFile="${file_name}.webp"
 
+        # Get the size of the new image in bytes
+        file_size=$(stat -f %z "$webpFile")
+
+        # Only proceed if the file is over MAX_SIZE.
+        if [ "$file_size" -gt $MAX_SIZE ]; then
           # compress the image
-          magick "${file}" -quality "${WEBP_QUALITY}" -define webp:lossless=false "${file_name}.webp"
+          magick "${webpFile}" -quality "${WEBP_QUALITY}" -define webp:lossless=false "${file_name}.webp"
 
           #let's trash the original image
           rm -rf "$file"
         else
-          echo "$file is smaller than ${MAX_SIZE} bytes and will not be resized."
+          echo "$file is smaller than ${MAX_SIZE} bytes and will not be compressed."
         fi
       else
         echo "$file is not an image file."

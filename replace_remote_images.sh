@@ -1,114 +1,217 @@
 #!/usr/local/bin/bash
+. ./utility.sh
 
 # CSV file and image folder
-CSV_FILE="shopify_title_handle.csv"
+CSV_FILE="image_urls.txt"
 IMAGE_FOLDER="downloaded_images"
-COMPLETION_LOG_FILE="logs/completion-logs.log"
-
-# Shopify API credentials
-SHOPIFY_STORE=""
-ADMIN_API_TOKEN=""
+COMPLETION_LOG_FILE="logs/upload-logs.log"
 
 DOWNLOADED_IMAGES_BACKUP="backup_renamed_compressed_resized_images"
-
 
 echo "Starting SEO Image Optimizer...";
 echo "Starting SEO Image Optimizer..." >> "$COMPLETION_LOG_FILE";
 
+# Let's create a backup of our folder.
 if [[ ! -d $DOWNLOADED_IMAGES_BACKUP ]]; then
     cp -r $IMAGE_FOLDER $DOWNLOADED_IMAGES_BACKUP
 fi
 
 # add counter, every 20 products done, stop the script and
 # manually check if product names and handles match the new file name.
-product_counter=1;
+# I put this here so that you can check if your images are being replaced correctly.
+# After a few runs were verified, I set this to a number larger than the total images I had.
+counter=0;
 
-# Let's go into the image_dir folder
-cd $IMAGE_FOLDER;
+# Read the input file CSV_FILE to delete and upload the new images
+declare -a imageSrcArray
 
-for productHandle in */; do
-  # Let's go into the product handle
-  cd $productHandle;
+while IFS= read -r line; do
+    imageSrcArray+=("$line")
+done < "$CSV_FILE"
 
-  # First, we'll grab the PRODUCT ID
-  cleanHandle=$(echo $productHandle | tr -d "/");
-  response=$(
-    curl -s -X GET "https://${SHOPIFY_STORE}/admin/api/2025-04/products.json?handle=${cleanHandle}" \
-     -H "X-Shopify-Access-Token: ${ADMIN_API_TOKEN}"
+# Now let's uplaod the new images. We do this to make media placement easier
+for i in "${!imageSrcArray[@]}"; do
+
+  declare -a lineArray;
+
+  # Let's split the array and save it to a local array
+  IFS=',' read -ra lineArray <<< "${imageSrcArray[i]}"
+
+  productID="${lineArray[0]}"
+  productHandle="${lineArray[1]}"
+  productImageURL="${lineArray[2]}"
+  productMediaID="${lineArray[3]}"
+  productImagePlacement="${lineArray[4]}"
+  productImageOrderDirectory="${IMAGE_FOLDER}/${productHandle}/${productImagePlacement}"
+
+  # If the productImageOrderDirectory directory does not exist is because we already processed it
+  # in a different run or something else went wrong. Skip it.
+  if  [[ ! -d  $productImageOrderDirectory ]]; then
+    echo "Skipping ${productID}. ${productImageOrderDirectory} not found." >> "$COMPLETION_LOG_FILE";
+    continue;
+  fi
+
+  # We are currently generating the alt text from the file name. However, we'll want to call Gemini to do this.
+  # Rewrite the alt text
+  fileName=$(ls ${productImageOrderDirectory} | head -n 1);
+
+  alt_text=$fileName;
+  # removes dashes -
+  alt_text=${alt_text//-/' '};
+  # removes underscores _
+  alt_text=${alt_text//_/' '};
+  # removes the forward slash
+  alt_text=${alt_text//\/};
+  # removes the file extension
+  alt_text=${alt_text//.*};
+
+  fileToReplace="{
+    \"input\": [
+      {
+        \"filename\":\"${fileName}\",
+        \"mimeType\":\"image/webp\",
+        \"httpMethod\":\"PUT\",
+        \"resource\":\"PRODUCT_IMAGE\"
+      }
+    ]
+  }"
+
+  echo "Generating Shopify staged upload request...";
+  echo "Generating Shopify staged upload request..." >> "$COMPLETION_LOG_FILE"
+
+  QUERY_DECODED=$(generateStagedUploadQuery)
+
+  stagedUploadRequest=$(curl -X POST \
+    https://${SHOPIFY_STORE}.myshopify.com/admin/api/2025-07/graphql.json \
+    -H 'Content-Type: application/json' \
+    -H "X-Shopify-Access-Token: ${ADMIN_API_TOKEN}" \
+    -d "{ \"query\":\"${QUERY_DECODED}\", \"variables\": ${fileToReplace} }"
   )
 
-  # Let's save the product id and handle
-  shopify_product_id=$(echo "$response" | jq -r '.products[0].id')
-  shopify_product_handle=$(echo "$response" | jq -r '.products[0].title')
+  echo "Shopify Staged Upload Request Response... ${stagedUploadRequest}" >> "$COMPLETION_LOG_FILE"
+  echo "Shopify Staged Upload Request Complete.";
 
-  # Fetch Shopify images for the product.
-  response=$(curl -s -X GET "https://${SHOPIFY_STORE}/admin/api/2025-01/products/${shopify_product_id}/images.json" -H "X-Shopify-Access-Token: ${ADMIN_API_TOKEN}")
+  uploadUrl=$(echo $stagedUploadRequest | jq -r '.data.stagedUploadsCreate.stagedTargets[0].url');
+  resourceUrl=$(echo $stagedUploadRequest | jq -r '.data.stagedUploadsCreate.stagedTargets[0].resourceUrl');
 
-  for image in $(echo "$response" | jq -r '.images[] | @base64'); do
-    # Decode the base64-encoded image object to access its fields
-    _jq() {
-      echo "$image" | base64 --decode | jq -r "$1"
-    }
+  echo "Upload URL ${uploadUrl} - " >> "$COMPLETION_LOG_FILE";
+  echo "Upload Resource URL ${resourceUrl} - " >> "$COMPLETION_LOG_FILE";
 
-    # Access the attributes within the image object
-    image_id=$(_jq '.id')
+  uploadProductImageRequest=$(curl -X PUT -T $productImageOrderDirectory/$fileName \
+    -H 'content_type:image/webp' \
+    -H 'acl:private' \
+    $uploadUrl
+  )
 
-    # Delete existing Shopify image
-    curl -s -X DELETE "https://${SHOPIFY_STORE}/admin/api/2025-01/products/${shopify_product_id}/images/${image_id}.json" \
-      -H "X-Shopify-Access-Token: ${ADMIN_API_TOKEN}"
+  echo "Image Uploaded using PUT Request: ${uploadProductImageRequest}" >> "$COMPLETION_LOG_FILE"
+
+  # Now we need to create the image from the product.
+  fileCreateRequest=$(
+    curl -X POST \
+    https://${SHOPIFY_STORE}.myshopify.com/admin/api/2025-10/graphql.json \
+    -H 'Content-Type: application/json' \
+    -H "X-Shopify-Access-Token: ${ADMIN_API_TOKEN}" \
+    -d "{
+      \"query\": \"mutation fileCreate(\$files: [FileCreateInput!]!) { fileCreate(files: \$files) { files { id fileStatus alt createdAt ... on MediaImage { image { width height } } } userErrors { field message } } }\",
+      \"variables\": {
+        \"files\": [
+          {
+            \"alt\": \"${alt_text}\",
+            \"contentType\": \"IMAGE\",
+            \"originalSource\": \"${resourceUrl}\"
+          }
+        ]
+      }
+    }"
+  )
+
+  echo "Created image media in Shopify: ${productID} with local image ${fileName}.";
+  echo "Created image media in Shopify: ${productID} with local image ${fileName}."  >> "${COMPLETION_LOG_FILE}";
+  echo "Created image media in Shopify: ${fileCreateRequest}." >> "${COMPLETION_LOG_FILE}";
+
+  # Now that we are sure that we have uploaded the media to the product, let's attach it and delete the one we are no longer using.
+  # First let's delete the exisitng image from the product. Note that we are not using fileUpdate requests because such requests require us
+  # to use the same file extension type. Meaning that replacing JPGs or other formats for webp would not be allowed.
+
+  fileCreateStatus=$(echo $fileCreateRequest | jq -r '.data.fileCreate.files[0].fileStatus');
+  newFileID=$(echo $fileCreateRequest | jq -r '.data.fileCreate.files[0].id');
+
+  STATUS_QUERY=$(echo 'query { node(id: \"'$newFileID'\") { id ... on MediaImage { status, image { url } } } }' | base64)
+  STATUS_QUERY_DECODED=$(echo $STATUS_QUERY | base64 -d | tr -d '\n');
+
+  # I wish there was a better way. I'm not sure why Media with "UPLOADED" Status cannot be attached to products.
+  while [ $fileCreateStatus == 'UPLOADED' ] || [ $fileCreateStatus == 'PROCESSING' ]; do
+    # Loop the request until media is marked as ready.
+    fileStatusQuery=$(
+      curl -X POST \
+      https://${SHOPIFY_STORE}.myshopify.com/admin/api/2025-10/graphql.json \
+      -H 'Content-Type: application/json' \
+      -H "X-Shopify-Access-Token: ${ADMIN_API_TOKEN}" \
+      -d "{
+        \"query\": \"${STATUS_QUERY_DECODED}\"
+      }"
+    )
+
+    fileCreateStatus=$(echo $fileStatusQuery | jq -r '.data.node.status');
+
+    echo "File Status Request: ${fileCreateStatus} - ${fileStatusQuery}." >> "${COMPLETION_LOG_FILE}";
+
+    if [[ $fileCreateStatus == 'READY' ]]; then
+      break
+    fi
+
+    # Let's not overwhelm the API
+    sleep 4
   done
 
-  for imageOrder in */; do
 
-    # Let's go into the image order dir
-    cd $imageOrder;
+  if [[ $fileCreateStatus == 'READY' ]]; then
 
-    for file in *; do
-      # Let's upload the image and delete the previous one
-      echo "Generating image alt text for shopify product listing...";
+    fileUpdateRequest=$(
+      curl -X POST \
+      https://${SHOPIFY_STORE}.myshopify.com/admin/api/2025-10/graphql.json \
+      -H 'Content-Type: application/json' \
+      -H "X-Shopify-Access-Token: ${ADMIN_API_TOKEN}" \
+      -d "{
+        \"query\": \"mutation fileUpdate(\$files: [FileUpdateInput!]!) { fileUpdate(files: \$files) { files { id alt fileStatus } userErrors { field message code } } }\",
+        \"variables\": {
+          \"files\": [
+            {
+              \"id\": \"${newFileID}\",
+              \"referencesToAdd\": \"${productID}\"
+            }
+          ]
+        }
+      }"
+    )
 
-      # Rewrite the alt text
-      alt_text=$file;
-      # removes dashes -
-      alt_text=${alt_text//-/' '};
-      # removes underscores _
-      alt_text=${alt_text//_/' '};
-      # removes the forward slash
-      alt_text=${alt_text//\/};
-      # removes the file extension
-      alt_text=${alt_text//.*};
+    echo "Attached image media for ${productID} with local image ${fileName}." >> "${COMPLETION_LOG_FILE}";
+    echo "Attached image media in Shopify: ${fileUpdateRequest}." >> "${COMPLETION_LOG_FILE}";
 
-      # add exception handling for above curl request
-      echo "Alt text generated... \"$alt_text\"";
+    fileDeleteRequest=$(
+      curl -X POST \
+      https://${SHOPIFY_STORE}.myshopify.com/admin/api/2025-10/graphql.json \
+      -H 'Content-Type: application/json' \
+      -H "X-Shopify-Access-Token: ${ADMIN_API_TOKEN}" \
+      -d "{
+        \"query\": \"mutation fileDelete(\$fileIds: [ID!]!) { fileDelete(fileIds: \$fileIds) { deletedFileIds userErrors { field message code } } }\",
+        \"variables\": {
+            \"fileIds\": [
+              \"${productMediaID}\"
+            ]
+        }
+      }"
+    )
 
-      echo "Replacing image...";
+    echo "Deleted image from Shopify: ${productMediaID} - Response: ${fileDeleteRequest}";
+    echo "Deleted image from Shopify: ${productMediaID} - Response: ${fileDeleteRequest}" >> "${COMPLETION_LOG_FILE}";
+  fi
 
-      # Upload new image, catch and exit script if there was an error.
-      curl --output >(cat >> "../../../$COMPLETION_LOG_FILE") -s --progress-bar -X POST "https://${SHOPIFY_STORE}/admin/api/2025-01/products/${shopify_product_id}/images.json" \
-        -H "X-Shopify-Access-Token: ${ADMIN_API_TOKEN}" \
-        -H "Content-Type: application/json" \
-        -d "{\"image\": {\"attachment\": \"$(base64 -i "$file")\", \"filename\": \"$file\", \"alt\": \"$alt_text\", \"position\": \"$(echo $imageOrder | tr -d "/")\"}}";
+  let counter++
 
-      echo -e "🔄 Replaced image from Shopify handle: ${shopify_product_handle} id: ${shopify_product_id} with local image (${productHandle}${imageOrder}${file})"
-    done
-
-    # Leave the imageOrder folder
-    cd ..
-  done
-  
-  # Leave the productHandle folder
-  cd ..
-
-  # remove the the product folder since all images were already optimized. Next time you run through the script, you won't have to
-  # go through all the products again. If you lose a product image set, you can recover it from the backup folder we created the first time we ran
-  # this script.
-  rm -rf $productHandle
-
-  let product_counter++
-
-  if [[ "$product_counter" -eq 20 ]]; then
+  if [[ "$counter" -eq 40 ]]; then
     echo "Stopping... script completed." >> "$COMPLETION_LOG_FILE";
-    echo "Stopping... script completed. Check your product images and re-run the script.";
+    echo "Stopping... script completed.";
     break
   fi
 done
