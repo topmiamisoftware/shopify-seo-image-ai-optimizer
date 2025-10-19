@@ -17,6 +17,10 @@
 </ul>
 
 <p>
+    Video run through can be found here: <a href="https://youtu.be/VYT_vfDOFwU" target="_blank">#Shopify #AI Product Images #SEO Optimizer - Google Gemini, Shopify GraphQL, #BASH</a>
+</p>
+
+<p>
     DISCLAIMER: This source code is to be used AS IS. While I have personally ran this in 2 different production Shopify Stores and replaced over 500 images, I'm still not sure what could go wrong while running the image replacement script.
 </p>
 
