@@ -6,6 +6,10 @@
 </p>
 
 <p>
+    WARNING: Before you make any changes to your production Shopify store, please don't. Instead, create a staging Shopify store an advance to making changes with this plugin there instead. After you are satisfied with the results, you can push your staging store to production.
+</p>
+
+<p>
     This Optimizer will:
 </p>
 <ul>
