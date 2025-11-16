@@ -87,6 +87,9 @@
             Before we upload the images through the Gemini API to get the file names, let's compress them, resize them, and convert them to webp. This will not only optimize the images for the best web performance, it will also reduce the payload on the Gemini API calls.
         </p>
         <p>
+            ALERT: If your images are not resized and you are trying to upload large images to the Gemini API you will get the following error: 'Argument list too long'. Maybe we can find a workaround for this in case you need to upload large images.
+        </p>
+        <p>
             <b>!!!WARNING!!!:</b> You should manually backup the `downloaded_images` folder at this point to create a backup of your original Shopify Store Images.
         </p>
     </li>
