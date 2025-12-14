@@ -3,7 +3,7 @@
 
 # CSV file and image folder
 CSV_FILE="image_urls.txt"
-IMAGE_FOLDER="downloaded_images"
+IMAGE_FOLDER="renamed_images"
 COMPLETION_LOG_FILE="logs/upload-logs.log"
 
 DOWNLOADED_IMAGES_BACKUP="backup_renamed_compressed_resized_images"
