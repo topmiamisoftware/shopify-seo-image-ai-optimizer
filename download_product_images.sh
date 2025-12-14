@@ -22,15 +22,10 @@ while IFS= read -r line; do
     imageSrcArray+=("$line")
 done < "../$URL_FILE"
 
-# Let's skip the first line from the Image URLs file since it contains column names
-# then loop through the image URLs and save them into our array
 counter=0
 for i in "${!imageSrcArray[@]}"; do
 
     declare -a lineArray;
-
-    # Increment the counter
-    ((counter++))
 
     # Let's split the array and save it to a local array
     IFS=',' read -ra lineArray <<< "${imageSrcArray[i]}"
@@ -79,6 +74,9 @@ for i in "${!imageSrcArray[@]}"; do
         mv $file $(echo "$file" | sed 's/\?v=[0-9]*//');
         echo "Cleaned Cache Version.";
     done
+
+    # Increment the counter
+    ((counter++))
 
     # Backout to output dir
     cd "../..";
