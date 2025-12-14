@@ -1,5 +1,6 @@
 #!/bin/bash
 IMAGE_DIR='downloaded_images';
+NEW_FOLDER='resized_images';
 
 LOG="logs/image_resize.log"
 
@@ -15,14 +16,22 @@ MAX_SIZE=50000;
 
 # WEBP Quality parameter allows you to set your image's quality when converting to WEBP.
 # I reccomend 75 so that your images are not terribly pixelated with 820px being the largest dimension for your image.
-WEBP_QUALITY=75
+WEBP_QUALITY=77
 
 # Let's Log the total size of all the images if the IMAGE_DIR
 totalDirectorySize="$(du -sh $IMAGE_DIR)"
 echo "Directory Size Before Compression: $totalDirectorySize" >> "${LOG}";
 
-# CD into the IMAGE_DIR
-cd "${IMAGE_DIR}";
+# Backup the downloaded_images folder before beginning resize
+if [ -d "${NEW_FOLDER}" ]; then
+  echo "Delete your backup directory ${NEW_FOLDER} and try again.";
+  exit 0;
+fi
+# backup
+cp -R "${IMAGE_DIR}/." "${NEW_FOLDER}"
+
+# CD into the NEW_FOLDER
+cd "${NEW_FOLDER}";
 
 for productHandle in ./*; do
   # Let's go into the product handle folder.
@@ -75,6 +84,9 @@ for productHandle in ./*; do
         # Convert to webp if it isn't already in WEBP format.
         if ! [[ "$file" =~ \.(webp)$ ]]; then
           magick "${file}" -quality 100 -define webp:lossless=false "${file_name}.webp"
+
+          # let's trash the original image
+          rm -rf "$file"
         fi
 
         webpFile="${file_name}.webp"
@@ -86,9 +98,6 @@ for productHandle in ./*; do
         if [ "$file_size" -gt $MAX_SIZE ]; then
           # compress the image
           magick "${webpFile}" -quality "${WEBP_QUALITY}" -define webp:lossless=false "${file_name}.webp"
-
-          #let's trash the original image
-          rm -rf "$file"
         else
           echo "$file is smaller than ${MAX_SIZE} bytes and will not be compressed."
         fi
@@ -109,5 +118,5 @@ done
 cd .. 
 
 # Let's log the total size of all the images after we compress & resize them
-totalDirectorySize="$(du -sh $IMAGE_DIR)"
+totalDirectorySize="$(du -sh $NEW_FOLDER)"
 echo "Directory Size After Compression: $totalDirectorySize" >> "${LOG}";
